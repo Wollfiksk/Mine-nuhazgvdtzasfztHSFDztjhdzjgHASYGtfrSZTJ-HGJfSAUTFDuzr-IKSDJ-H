@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-
+from player import player
 
 pygame.init()
 pygame.font.init()
@@ -18,6 +18,33 @@ for jeden_radek in soubor:
 
 soubor.close()
 
+randoms = random.randint(50,500)
+pozice_micku_y = randoms
+pozice_micku_x = 400
+velikost_micku = 50
+randoms2 = random.randint(1,2)
+if randoms2 == 1:
+    rychlost_micku_x = 0.3
+if randoms2 == 2:
+    rychlost_micku_x = -0.3
+rychlost_micku_y = 0.3
+
+velikost_hrace_vyska = 150
+velikost_hrace_sirka = 50
+
+pozice_hrace_x = 10
+pozice_hrace_y = 300
+rychlost_hrace = 0.6
+
+velikost_hrace_vyska2 = 150
+velikost_hrace_sirka2 = 50
+
+clock = pygame.time.Clock()
+
+pozice_hrace_x2 = 740
+pozice_hrace_y2 = 300
+rychlost_hrace2 = 0.6
+
 button_rect2 = pygame.Rect(300, 200, 200, 100)
 button_rect = pygame.Rect(300, 330, 200, 100)
 button_color = (100, 100, 100)
@@ -26,6 +53,10 @@ click_color = (100, 100, 100)
 font = pygame.font.SysFont(None , 40)
 font2 = pygame.font.SysFont(None , 40)
 esc = False
+
+jo = False
+jo2 = False 
+fps = str(int(clock.get_fps()))
 
 def draw_button(rect, color, text):
     pygame.draw.rect(okno, color, rect)
@@ -42,12 +73,12 @@ def fps_counter():
     fps_t = font.render(fps , 1, pygame.Color("RED"))
     okno.blit(fps_t,(0,0))
 
-def reset_game():
+def reset_game():     
     global pozice_micku_x, pozice_micku_y, skore
     pozice_micku_x = 400
     pozice_micku_y = 300
     skore = 0
-
+    
 while True:
     for udalost in pygame.event.get():
         if udalost.type == pygame.QUIT:
@@ -96,12 +127,43 @@ while True:
             
         pygame.display.flip()
         
-        
+    playerx = 20
+    playery = 440
+    velikostx = 40
+    velikosty = 60
     
     if not esc:            
         stisknute_klavesy = pygame.key.get_pressed()
+        okno.fill((0, 0, 0))
         
+        fps_counter()
+        clock.tick(60)  
         
-        okno.fill((255, 255, 255))
+        #jump
+        if stisknute_klavesy[pygame.K_SPACE]:
+            on_ground = playery == 440
+            jump_count = 10  
 
+            if on_ground:
+                jump_count = 10  
+
+            if stisknute_klavesy[pygame.K_SPACE]:
+                if on_ground:
+                    jump_count = 10  
+            else:
+                jump_count = 0  
+
+            if not on_ground or jump_count > 0:
+                playery -= 3
+                jump_count -= 1
+
+            if playery < 440:
+                on_ground = False
+            else:
+                on_ground = True
+                playery =  440
+
+        player(20, 440, 40, 60)
+     
+        pygame.display.update()
     

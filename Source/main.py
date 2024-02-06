@@ -16,6 +16,8 @@ playery = 440
 velikostx = 40
 velikosty = 50
 
+gravity = 4
+
 button_rect2 = pygame.Rect(300, 200, 200, 100)
 button_rect = pygame.Rect(300, 330, 200, 100)
 button_color = (100, 100, 100)
@@ -95,7 +97,8 @@ while True:
             
         pygame.display.flip()
         
-    
+
+
     if not esc:            
         stisknute_klavesy = pygame.key.get_pressed()
         okno.fill((0, 0, 0))
@@ -103,13 +106,34 @@ while True:
         direction = pygame.Vector2(playerx, playery)
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
 
+        playery += gravity
 
         fps_counter()
         clock.tick(100)
                 
         #jump
+        
+        on_ground = playery == 440 
+        jump_count = 10
+
+        if on_ground:
+            jump_count = 10  
+
         if stisknute_klavesy[pygame.K_SPACE]:
-            playery -= 1
+            if on_ground:
+                jump_count = 10  
+            
+            if jump_count > 0:
+                playery -= 7
+                jump_count -= 1
+
+        else:
+            jump_count = 0 
+
+        if playery < 440:
+            on_ground = False
+        else:
+            on_ground = True
+            playery = 440
      
         pygame.display.update()
-    

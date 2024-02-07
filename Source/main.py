@@ -23,6 +23,8 @@ button_rect = pygame.Rect(300, 330, 200, 100)
 button_color = (100, 100, 100)
 click_color = (100, 100, 100)
 
+jump_count = 10
+
 font = pygame.font.SysFont(None , 40)
 font2 = pygame.font.SysFont(None , 40)
 esc = False
@@ -112,28 +114,18 @@ while True:
         clock.tick(100)
                 
         #jump
-        
-        on_ground = playery == 440 
-        jump_count = 10
-
-        if on_ground:
-            jump_count = 10  
-
-        if stisknute_klavesy[pygame.K_SPACE]:
-            if on_ground:
-                jump_count = 10  
-            
-            if jump_count > 0:
-                playery -= 7
-                jump_count -= 1
-
-        else:
-            jump_count = 0 
 
         if playery < 440:
             on_ground = False
         else:
             on_ground = True
             playery = 440
+
+        if stisknute_klavesy[pygame.K_SPACE]:
+            if jump_count > 0:
+                playery -= 7
+                jump_count -= 0.1
+        if jump_count <= 10 and on_ground:  # Reset jump_count only when on the ground
+            jump_count = 10
      
-        pygame.display.update()
+        pygame.display.update()     

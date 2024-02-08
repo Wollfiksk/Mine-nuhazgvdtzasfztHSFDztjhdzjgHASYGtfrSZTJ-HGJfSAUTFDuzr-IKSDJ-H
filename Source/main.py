@@ -29,6 +29,8 @@ font = pygame.font.SysFont(None , 40)
 font2 = pygame.font.SysFont(None , 40)
 esc = False
 
+skok = False
+
 jo = False
 jo2 = False 
 fps = str(int(clock.get_fps()))
@@ -108,12 +110,8 @@ while True:
         direction = pygame.Vector2(playerx, playery)
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
 
-        playery += gravity
-
         fps_counter()
         clock.tick(100)
-                
-        #jump
 
         if playery < 440:
             on_ground = False
@@ -122,10 +120,16 @@ while True:
             playery = 440
 
         if stisknute_klavesy[pygame.K_SPACE]:
-            if jump_count > 0:
+            if not skok:
                 playery -= 7
-                jump_count -= 0.1
-        if jump_count <= 10 and on_ground:  # Reset jump_count only when on the ground
-            jump_count = 10
-     
+                skok = True
+        if on_ground:  
+            skok = False
+
+        if playery > 350:
+            playery += gravity
+        if playery < 350:
+            playery += 2
+
+
         pygame.display.update()     

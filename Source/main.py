@@ -8,6 +8,38 @@ pygame.font.init()
 rozliseni_okna = (800, 600)
 
 okno = pygame.display.set_mode(rozliseni_okna)
+<<<<<<< Updated upstream
+=======
+soubor = open("projecterectermecternerder\Mine-nuhazgvdtzasfztHSFDztjhdzjgHASYGtfrSZTJ-HGJfSAUTFDuzr-IKSDJ-H\safe\Save.txt", 'r', encoding = 'utf-8')
+
+for jeden_radek in soubor:
+    skorestr = jeden_radek
+    skore = int(skorestr)
+        
+
+soubor.close()
+
+randoms = random.randint(50,500)
+pozice_micku_y = randoms
+pozice_micku_x = 400
+velikost_micku = 50
+randoms2 = random.randint(1,2)
+if randoms2 == 1:
+    rychlost_micku_x = 0.3
+if randoms2 == 2:
+    rychlost_micku_x = -0.3
+rychlost_micku_y = 0.3
+
+velikost_hrace_vyska = 150
+velikost_hrace_sirka = 50
+
+pozice_hrace_x = 10
+pozice_hrace_y = 300
+rychlost_hrace = 0.6
+
+velikost_hrace_vyska2 = 150
+velikost_hrace_sirka2 = 50
+>>>>>>> Stashed changes
 
 clock = pygame.time.Clock()
 
@@ -92,6 +124,12 @@ while True:
         if is_hovered2:
             if pygame.mouse.get_pressed()[0]:  # Left mouse button is pressed
                 draw_button(button_rect2, click_color, "Quited and Saved")
+<<<<<<< Updated upstream
+=======
+                soubor2 = open("projecterectermecternerder\Mine-nuhazgvdtzasfztHSFDztjhdzjgHASYGtfrSZTJ-HGJfSAUTFDuzr-IKSDJ-H\safe\Save.txt", 'w', encoding = 'utf-8')
+                soubor2.write(str(skore))
+                soubor2.close()
+>>>>>>> Stashed changes
                 
                 quit()
             else:

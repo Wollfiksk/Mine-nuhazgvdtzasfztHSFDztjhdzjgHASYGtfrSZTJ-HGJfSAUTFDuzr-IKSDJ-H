@@ -55,18 +55,18 @@ class Obstacle:
         self.height = random.randint(50, 200)
         self.x = 800
         self.y = (550 - self.height)
-        self.speed = 0.3 + skore / 5  # Increase speed over time
-        self.acceleration = 0.01  # Acceleration factor
+        self.speed = 0.3   
+        self.acceleration = 0.01  
+
 
     def update(self, player_x, player_y, skore):
         self.x -= self.speed
-        self.speed += self.acceleration  # Increase speed over time
-
+        self.speed += self.acceleration  
         if self.x < -self.width:
             self.reset(skore)
             return False
 
-        # Check for collision with player
+
         if (
             player_x < self.x + self.width
             and player_x + velikostx > self.x
@@ -74,7 +74,7 @@ class Obstacle:
             and player_y + velikosty > self.y
         ):
             return True
-
+        
         return False
 
 obstacles = [Obstacle(0) for _ in range(5)]
@@ -108,7 +108,7 @@ while True:
 
         pygame.draw.rect(okno, (0, 0, 0), (100, 100, 600, 400))
         if is_hovered:
-            if pygame.mouse.get_pressed()[0]:  # Left mouse button is pressed
+            if pygame.mouse.get_pressed()[0]: 
                 draw_button(button_rect, click_color, "Reseted")
             else:
                 draw_button(button_rect, button_color, "Reset")
@@ -116,7 +116,7 @@ while True:
             draw_button(button_rect, button_color, "Reset")
 
         if is_hovered2:
-            if pygame.mouse.get_pressed()[0]:  # Left mouse button is pressed
+            if pygame.mouse.get_pressed()[0]:  
                 draw_button(button_rect2, click_color, "Quited and Saved")
 
                 soubor2 = open("Save.txt", 'w', encoding='utf-8')
@@ -143,9 +143,8 @@ while True:
                 print("Game Over!")
                 obstacles = [Obstacle(skore) for _ in range(5)]
                 skore = 0
-
         fps_counter()
-        clock.tick(100)  # Limit FPS to 60
+        clock.tick(100)  
 
         if playery < 440:
             on_ground = False
@@ -169,11 +168,11 @@ while True:
                 jump_count = 15
 
         playery += gravity
-
+        skore += 1
         for obstacle in obstacles:
             pygame.draw.rect(okno, (255, 0, 0), (obstacle.x, obstacle.y, obstacle.width, obstacle.height))
 
-        txtimg = font2.render("Skore: " + str(skore), True, (0, 0, 0))
+        txtimg = font2.render("Skore: " + str(skore), True, (255, 255, 255))
         okno.blit(txtimg, (600, 0))
 
         pygame.display.update()

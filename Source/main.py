@@ -15,11 +15,36 @@ playery = 440
 velikostx = 40
 velikosty = 50
 gravity = 5
-jump_count = 10
+jump_count = 15
 is_jumping = False
 
-# Obstacle variables
-speed_increase_interval = 5  # Increase speed every 5 obstacles
+# Other variables
+clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 40)
+font2 = pygame.font.SysFont(None, 40)
+esc = False
+
+skore = 0
+
+button_rect2 = pygame.Rect(300, 200, 200, 100)
+button_rect = pygame.Rect(300, 330, 200, 100)
+button_color = (100, 100, 100)
+click_color = (100, 100, 100)
+
+def draw_button(rect, color, text):
+    pygame.draw.rect(okno, color, rect)
+    text_surface = font.render(text, True, (255, 255, 255))
+    text_rect = text_surface.get_rect(center=rect.center)
+    okno.blit(text_surface, text_rect)
+
+def fps_counter():
+    fps = str(int(clock.get_fps()))
+    fps_t = font.render(fps, 1, pygame.Color("RED"))
+    okno.blit(fps_t, (0, 0))
+
+def reset_game():
+    global skore
+    skore = 0
 
 class Obstacle:
     def __init__(self, skore):
@@ -30,24 +55,30 @@ class Obstacle:
         self.height = random.randint(50, 200)
         self.x = 800
         self.y = (550 - self.height)
-        self.speed = 0.3 + skore // speed_increase_interval * 0.1  # Increase speed over time
+        self.speed = 0.3 + skore / 5  # Increase speed over time
+        self.acceleration = 0.01  # Acceleration factor
 
     def update(self, player_x, player_y, skore):
         self.x -= self.speed
+        self.speed += self.acceleration  # Increase speed over time
+
         if self.x < -self.width:
             self.reset(skore)
             return False
 
+        # Check for collision with player
+        if (
+            player_x < self.x + self.width
+            and player_x + velikostx > self.x
+            and player_y < self.y + self.height
+            and player_y + velikosty > self.y
+        ):
+            return True
+
+        return False
+
 obstacles = [Obstacle(0) for _ in range(5)]
 
-# Other variables
-clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 40)
-font2 = pygame.font.SysFont(None, 40)
-esc = False
-skore = 0
-
-# Main game loop
 while True:
     for udalost in pygame.event.get():
         if udalost.type == pygame.QUIT:
@@ -56,6 +87,50 @@ while True:
         elif udalost.type == pygame.KEYDOWN:
             if udalost.key == pygame.K_ESCAPE:
                 esc = not esc
+        elif udalost.type == pygame.MOUSEBUTTONDOWN:
+            if udalost.button == 1:
+                if button_rect.collidepoint(udalost.pos):
+                    print("reset")
+                    reset_game()
+        elif udalost.type == pygame.MOUSEBUTTONDOWN:
+            if udalost.button == 1:
+                if button_rect2.collidepoint(udalost.pos):
+                    print("Quited")
+                    soubor2 = open("Save.txt", "w", encoding="utf-8")
+                    soubor2.write(str(skore))
+                    soubor2.close()
+                    pygame.quit()
+                    sys.exit()
+
+    if esc:
+        is_hovered = button_rect.collidepoint(pygame.mouse.get_pos())
+        is_hovered2 = button_rect2.collidepoint(pygame.mouse.get_pos())
+
+        pygame.draw.rect(okno, (0, 0, 0), (100, 100, 600, 400))
+        if is_hovered:
+            if pygame.mouse.get_pressed()[0]:  # Left mouse button is pressed
+                draw_button(button_rect, click_color, "Reseted")
+            else:
+                draw_button(button_rect, button_color, "Reset")
+        else:
+            draw_button(button_rect, button_color, "Reset")
+
+        if is_hovered2:
+            if pygame.mouse.get_pressed()[0]:  # Left mouse button is pressed
+                draw_button(button_rect2, click_color, "Quited and Saved")
+
+                soubor2 = open("Save.txt", 'w', encoding='utf-8')
+                soubor2.write(str(skore))
+                soubor2.close()
+
+                pygame.quit()
+                sys.exit()
+            else:
+                draw_button(button_rect2, button_color, "Quit and Save")
+        else:
+            draw_button(button_rect2, button_color, "Quit and Save")
+
+        pygame.display.flip()
 
     if not esc:
         stisknute_klavesy = pygame.key.get_pressed()
@@ -69,12 +144,9 @@ while True:
                 obstacles = [Obstacle(skore) for _ in range(5)]
                 skore = 0
 
-        fps = str(int(clock.get_fps()))
-        fps_t = font.render(fps, 1, pygame.Color("RED"))
-        okno.blit(fps_t, (0, 0))
+        fps_counter()
+        clock.tick(100)  # Limit FPS to 60
 
-        clock.tick(100)
-        skore += 0.01
         if playery < 440:
             on_ground = False
         else:

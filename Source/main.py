@@ -1,5 +1,5 @@
-import pygame
 import sys
+import pygame
 import random
 
 pygame.init()
@@ -47,8 +47,9 @@ def fps_counter():
 
 
 def reset_game():
-    global skore
+    global skore, is_jumping
     skore = 0
+    is_jumping = False
 
 
 class Obstacle:
@@ -68,10 +69,13 @@ class Obstacle:
         self.speed += self.acceleration
 
         if self.rect.colliderect(player_rect):
-            if not is_jumping:
-                playerx = self.rect.x + self.rect.width  # Push player out of the left side
-            else:
-                playery = self.rect.y - velikosty  # Allow player to stand on the obstacle
+            if not is_jumping:  # If player is not jumping
+                playerx = self.rect.x + self.rect.width  # Push player out of the obstacle
+            else:  # If player is jumping
+                # Reset jump and place player above the obstacle
+                playery = self.rect.y - velikosty - 1
+                jump_count = 0
+                is_jumping = False
 
         if self.rect.x < -self.width:
             self.reset(skore)
@@ -111,7 +115,7 @@ while True:
 
         pygame.draw.rect(okno, (0, 0, 0), (100, 100, 600, 400))
         if is_hovered:
-            if pygame.mouse.get_pressed()[0]:  
+            if pygame.mouse.get_pressed()[0]:
                 draw_button(button_rect, click_color, "Reseted")
             else:
                 draw_button(button_rect, button_color, "Reset")
@@ -119,7 +123,7 @@ while True:
             draw_button(button_rect, button_color, "Reset")
 
         if is_hovered2:
-            if pygame.mouse.get_pressed()[0]:  
+            if pygame.mouse.get_pressed()[0]:
                 draw_button(button_rect2, click_color, "Quited and Saved")
 
                 soubor2 = open("Save.txt", 'w', encoding='utf-8')

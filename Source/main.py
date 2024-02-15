@@ -69,13 +69,10 @@ class Obstacle:
         self.speed += self.acceleration
 
         if self.rect.colliderect(player_rect):
-            if not is_jumping:  # If player is not jumping
-                playerx = self.rect.x + self.rect.width  # Push player out of the obstacle
-            else:  # If player is jumping
-                # Reset jump and place player above the obstacle
-                playery = self.rect.y - velikosty - 1
-                jump_count = 0
-                is_jumping = False
+            playery = self.rect.y - velikosty - 1
+            playerx -= self.speed
+            jump_count = 0
+            is_jumping = False
 
         if self.rect.x < -self.width:
             self.reset(skore)
@@ -161,6 +158,7 @@ while True:
         if stisknute_klavesy[pygame.K_SPACE]:
             if not is_jumping and on_ground:
                 is_jumping = True
+                jump_count = 15
 
         if is_jumping:
             if jump_count >= -15:

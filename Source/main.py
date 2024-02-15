@@ -9,87 +9,45 @@ rozliseni_okna = (800, 600)
 
 okno = pygame.display.set_mode(rozliseni_okna)
 
-randoms = random.randint(50, 500)
-pozice_micku_y = randoms
-pozice_micku_x = 400
-velikost_micku = 50
-randoms2 = random.randint(1, 2)
-if randoms2 == 1:
-    rychlost_micku_x = 0.3
-if randoms2 == 2:
-    rychlost_micku_x = -0.3
-rychlost_micku_y = 0.3
-
-velikost_hrace_vyska = 150
-velikost_hrace_sirka = 50
-
-pozice_hrace_x = 10
-pozice_hrace_y = 300
-rychlost_hrace = 0.6
-
-velikost_hrace_vyska2 = 150
-velikost_hrace_sirka2 = 50
-
-clock = pygame.time.Clock()
-
+# Player variables
 playerx = 20
 playery = 440
 velikostx = 40
 velikosty = 50
-
-gravity = 5  # Reduced gravity
-
-button_rect2 = pygame.Rect(300, 200, 200, 100)
-button_rect = pygame.Rect(300, 330, 200, 100)
-button_color = (100, 100, 100)
-click_color = (100, 100, 100)
-
+gravity = 5
 jump_count = 10
 is_jumping = False
 
+# Obstacle variables
+speed_increase_interval = 5  # Increase speed every 5 obstacles
+
+class Obstacle:
+    def __init__(self, skore):
+        self.reset(skore)
+
+    def reset(self, skore):
+        self.width = 50
+        self.height = random.randint(50, 200)
+        self.x = 800
+        self.y = (550 - self.height)
+        self.speed = 0.3 + skore // speed_increase_interval * 0.1  # Increase speed over time
+
+    def update(self, player_x, player_y, skore):
+        self.x -= self.speed
+        if self.x < -self.width:
+            self.reset(skore)
+            return False
+
+obstacles = [Obstacle(0) for _ in range(5)]
+
+# Other variables
+clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 40)
 font2 = pygame.font.SysFont(None, 40)
 esc = False
-
 skore = 0
 
-jo = False
-jo2 = False
-fps = str(int(clock.get_fps()))
-
-spawn_time = 0
-spawn_interval = 1.0  # Initial spawn interval (in seconds)
-speed_increase_interval = 10  # Increase speed every 10 obstacles
-
-class Obstacle:
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.x = 800
-        self.y = random.randint(0, 600 - 50)
-        self.width = 50
-        self.height = 50
-        self.speed = 0.3 + skore // speed_increase_interval * 0.1  # Increase speed over time
-
-    def update(self, player_x, player_y):
-        self.x -= self.speed
-        if self.x < -self.width:
-            self.reset()
-            return False
-        if (
-            self.x < player_x
-            and self.x + self.width > player_x
-            and self.y < player_y
-            and self.y + self.height > player_y
-        ):
-            return True
-        return False
-
-obstacles = []
-for i in range(5):
-    obstacles.append(Obstacle())
-
+# Main game loop
 while True:
     for udalost in pygame.event.get():
         if udalost.type == pygame.QUIT:
@@ -98,37 +56,17 @@ while True:
         elif udalost.type == pygame.KEYDOWN:
             if udalost.key == pygame.K_ESCAPE:
                 esc = not esc
-        elif udalost.type == pygame.MOUSEBUTTONDOWN:
-            if udalost.button == 1:
-                if button_rect.collidepoint(udalost.pos):
-                    print("reset")
-                    obstacles = []
-                    for i in range(5):
-                        obstacles.append(Obstacle())
-                    skore = 0
-        elif udalost.type == pygame.MOUSEBUTTONDOWN:
-            if udalost.button == 1:
-                if button_rect2.collidepoint(udalost.pos):
-                    print("Quited")
-                    soubor2 = open("Save.txt", "w", encoding="utf-8")
-                    soubor2.write(str(skore))
-                    soubor2.close()
-                    pygame.quit()
-                    sys.exit()
 
     if not esc:
         stisknute_klavesy = pygame.key.get_pressed()
         okno.fill((0, 0, 0))
 
-        direction = pygame.Vector2(playerx, playery)
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
 
         for obstacle in obstacles:
-            if obstacle.update(playerx, playery):
+            if obstacle.update(playerx, playery, skore):
                 print("Game Over!")
-                obstacles = []
-                for i in range(5):
-                    obstacles.append(Obstacle())
+                obstacles = [Obstacle(skore) for _ in range(5)]
                 skore = 0
 
         fps = str(int(clock.get_fps()))
@@ -136,7 +74,7 @@ while True:
         okno.blit(fps_t, (0, 0))
 
         clock.tick(100)
-
+        skore += 0.01
         if playery < 440:
             on_ground = False
         else:
@@ -159,11 +97,6 @@ while True:
                 jump_count = 15
 
         playery += gravity
-
-        spawn_time += clock.get_rawtime() / 1000.0  # Convert raw time to seconds
-        if spawn_time > spawn_interval:
-            obstacles.append(Obstacle())
-            spawn_time = 0
 
         for obstacle in obstacles:
             pygame.draw.rect(okno, (255, 0, 0), (obstacle.x, obstacle.y, obstacle.width, obstacle.height))

@@ -17,6 +17,7 @@ velikosty = 50
 gravity = 5
 jump_count = 15
 is_jumping = False
+player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Create a rect for player
 
 # Other variables
 clock = pygame.time.Clock()
@@ -31,20 +32,24 @@ button_rect = pygame.Rect(300, 330, 200, 100)
 button_color = (100, 100, 100)
 click_color = (100, 100, 100)
 
+
 def draw_button(rect, color, text):
     pygame.draw.rect(okno, color, rect)
     text_surface = font.render(text, True, (255, 255, 255))
     text_rect = text_surface.get_rect(center=rect.center)
     okno.blit(text_surface, text_rect)
 
+
 def fps_counter():
     fps = str(int(clock.get_fps()))
     fps_t = font.render(fps, 1, pygame.Color("RED"))
     okno.blit(fps_t, (0, 0))
 
+
 def reset_game():
     global skore
     skore = 0
+
 
 class Obstacle:
     def __init__(self, skore):
@@ -53,29 +58,27 @@ class Obstacle:
     def reset(self, skore):
         self.width = 50
         self.height = random.randint(50, 200)
-        self.x = 800
-        self.y = (550 - self.height)
-        self.speed = 0.3   
-        self.acceleration = 0.01  
+        self.rect = pygame.Rect(800, 550 - self.height, self.width, self.height)
+        self.speed = 0.3
+        self.acceleration = 0.01
 
+    def update(self, skore):
+        global playerx, playery, is_jumping, jump_count  # Declare player variables as global
+        self.rect.x -= self.speed
+        self.speed += self.acceleration
 
-    def update(self, player_x, player_y, skore):
-        self.x -= self.speed
-        self.speed += self.acceleration  
-        if self.x < -self.width:
+        if self.rect.colliderect(player_rect):
+            if not is_jumping:
+                playerx = self.rect.x + self.rect.width  # Push player out of the left side
+            else:
+                playery = self.rect.y - velikosty  # Allow player to stand on the obstacle
+
+        if self.rect.x < -self.width:
             self.reset(skore)
             return False
 
-
-        if (
-            player_x < self.x + self.width
-            and player_x + velikostx > self.x
-            and player_y < self.y + self.height
-            and player_y + velikosty > self.y
-        ):
-            return True
-        
         return False
+
 
 obstacles = [Obstacle(0) for _ in range(5)]
 
@@ -108,7 +111,7 @@ while True:
 
         pygame.draw.rect(okno, (0, 0, 0), (100, 100, 600, 400))
         if is_hovered:
-            if pygame.mouse.get_pressed()[0]: 
+            if pygame.mouse.get_pressed()[0]:  
                 draw_button(button_rect, click_color, "Reseted")
             else:
                 draw_button(button_rect, button_color, "Reset")
@@ -137,14 +140,13 @@ while True:
         okno.fill((0, 0, 0))
 
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
+        player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Update player_rect
 
         for obstacle in obstacles:
-            if obstacle.update(playerx, playery, skore):
+            if obstacle.update(skore):
                 print("Game Over!")
-                obstacles = [Obstacle(skore) for _ in range(5)]
-                skore = 0
         fps_counter()
-        clock.tick(100)  
+        clock.tick(100)
 
         if playery < 440:
             on_ground = False
@@ -170,7 +172,7 @@ while True:
         playery += gravity
         skore += 1
         for obstacle in obstacles:
-            pygame.draw.rect(okno, (255, 0, 0), (obstacle.x, obstacle.y, obstacle.width, obstacle.height))
+            pygame.draw.rect(okno, (255, 0, 0), (obstacle.rect.x, obstacle.rect.y, obstacle.width, obstacle.height))
 
         txtimg = font2.render("Skore: " + str(skore), True, (255, 255, 255))
         okno.blit(txtimg, (600, 0))

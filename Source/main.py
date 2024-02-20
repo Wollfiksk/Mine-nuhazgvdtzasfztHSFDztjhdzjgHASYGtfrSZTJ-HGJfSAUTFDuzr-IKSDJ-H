@@ -1,12 +1,13 @@
 import sys
 import pygame
 import random
+import time
 
 pygame.init()
 pygame.font.init()
 
 rozliseni_okna = (800, 600)
-
+    
 okno = pygame.display.set_mode(rozliseni_okna)
 
 # Player variables
@@ -18,6 +19,7 @@ gravity = 5
 jump_count = 15
 is_jumping = False
 player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Create a rect for player
+lives = 3
 
 # Other variables
 clock = pygame.time.Clock()
@@ -69,11 +71,10 @@ class Obstacle:
         self.speed += self.acceleration
 
         if self.rect.colliderect(player_rect):
-            if not is_jumping:  # If player is not jumping
-                playerx = self.rect.x + self.rect.width  # Push player out of the obstacle
-            else:  # If player is jumping
-                # Reset jump and place player above the obstacle
-                playery = self.rect.y - velikosty - 1
+            if not is_jumping:  
+                playerx = self.rect.x - self.rect.width  
+            else:
+                playery = self.rect.y + velikosty
                 jump_count = 0
                 is_jumping = False
 
@@ -82,6 +83,7 @@ class Obstacle:
             return False
 
         return False
+
 
 
 obstacles = [Obstacle(0) for _ in range(5)]
@@ -152,6 +154,21 @@ while True:
         fps_counter()
         clock.tick(100)
 
+        
+        if playerx < -40: 
+            print("you died")
+            lives -= 1
+            if lives == 0:
+                print("you lost")
+                print("you lost")
+                print("you lost")
+                print("you lost")
+                time.sleep(2)
+                quit()
+            playerx = 20
+            playery = 200
+            
+
         if playery < 440:
             on_ground = False
         else:
@@ -182,3 +199,4 @@ while True:
         okno.blit(txtimg, (600, 0))
 
         pygame.display.update()
+

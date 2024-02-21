@@ -1,12 +1,13 @@
 import sys
 import pygame
 import random
+import time
 
 pygame.init()
 pygame.font.init()
 
 rozliseni_okna = (800, 600)
-
+    
 okno = pygame.display.set_mode(rozliseni_okna)
 
 # Player variables
@@ -18,6 +19,7 @@ gravity = 5
 jump_count = 15
 is_jumping = False
 player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Create a rect for player
+lives = 3
 
 # Other variables
 clock = pygame.time.Clock()
@@ -69,16 +71,26 @@ class Obstacle:
         self.speed += self.acceleration
 
         if self.rect.colliderect(player_rect):
+<<<<<<< HEAD
             playery = self.rect.y - velikosty - 1
             playerx -= self.speed
             jump_count = 0
             is_jumping = False
+=======
+            if not is_jumping:  
+                playerx = self.rect.x - self.rect.width  
+            else:
+                playery = self.rect.y + velikosty
+                jump_count = 0
+                is_jumping = False
+>>>>>>> 7f97c03d7d44581e19721a6f2e5bb130ef93e905
 
         if self.rect.x < -self.width:
             self.reset(skore)
             return False
 
         return False
+
 
 
 obstacles = [Obstacle(0) for _ in range(5)]
@@ -149,6 +161,21 @@ while True:
         fps_counter()
         clock.tick(100)
 
+        
+        if playerx < -40: 
+            print("you died")
+            lives -= 1
+            if lives == 0:
+                print("you lost")
+                print("you lost")
+                print("you lost")
+                print("you lost")
+                time.sleep(2)
+                quit()
+            playerx = 20
+            playery = 200
+            
+
         if playery < 440:
             on_ground = False
         else:
@@ -180,3 +207,4 @@ while True:
         okno.blit(txtimg, (600, 0))
 
         pygame.display.update()
+

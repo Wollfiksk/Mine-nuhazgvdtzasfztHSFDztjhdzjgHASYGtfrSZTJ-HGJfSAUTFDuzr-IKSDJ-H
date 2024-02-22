@@ -71,7 +71,7 @@ class Obstacle:
         self.speed += self.acceleration
 
         if self.rect.colliderect(player_rect):
-            if not is_jumping:  
+            if not is_jumping and on_ground:  
                 playerx = self.rect.x - self.rect.width  
             else:
                 playery = self.rect.y + velikosty
@@ -155,7 +155,7 @@ while True:
         clock.tick(100)
 
         
-        if playerx < -40: 
+        if playerx < -80: 
             print("you died")
             lives -= 1
             if lives == 0:

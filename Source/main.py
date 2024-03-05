@@ -32,7 +32,8 @@ velikosty = 50
 gravity = 5
 jump_count = 15
 is_jumping = False
-player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Create a rect for player
+player_rect = okno.blit(image, (playerx, playery))
+ # Create a rect for player
 lives = 3
 
 # Other variables
@@ -161,8 +162,8 @@ while True:
         okno.fill((0, 0, 0))
 
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
-        player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Update player_rect
-        okno.blit(image, image_rect)
+        player_rect = okno.blit(image, (playerx, playery))
+        
 
         for obstacle in obstacles:
             if obstacle.update(skore):

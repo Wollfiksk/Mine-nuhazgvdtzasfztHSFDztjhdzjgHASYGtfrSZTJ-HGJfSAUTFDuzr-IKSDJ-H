@@ -10,6 +10,14 @@ rozliseni_okna = (800, 600)
     
 okno = pygame.display.set_mode(rozliseni_okna)
 
+
+image_path = ".obrazky/images.png"
+try:
+    image = pygame.image.load(image_path)
+except pygame.error as e:
+    print(f"Error loading image: {e}")
+    sys.exit()
+
 # Player variables
 playerx = 20
 playery = 440
@@ -71,10 +79,11 @@ class Obstacle:
         self.speed += self.acceleration
 
         if self.rect.colliderect(player_rect):
-            if not is_jumping and on_ground:  
+            if not is_jumping:  
                 playerx = self.rect.x - self.rect.width  
             else:
                 playery = self.rect.y + velikosty
+                playerx = self.rect.x + velikosty
                 jump_count = 0
                 is_jumping = False
 

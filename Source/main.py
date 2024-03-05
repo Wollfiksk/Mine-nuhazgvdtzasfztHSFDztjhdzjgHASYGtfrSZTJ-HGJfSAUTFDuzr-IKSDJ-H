@@ -2,21 +2,27 @@ import sys
 import pygame
 import random
 import time
-
+import os  # Import the os module
+ 
 pygame.init()
 pygame.font.init()
-
+ 
 rozliseni_okna = (800, 600)
-    
 okno = pygame.display.set_mode(rozliseni_okna)
-
-
-image_path = ".obrazky/images.png"
+ 
+# Adjust the image path handling
+current_dir = os.path.dirname(__file__)  # Get the directory of the current script
+image_path = os.path.join(current_dir, "obrazky", "images-removebg-preview.png")
+ 
 try:
     image = pygame.image.load(image_path)
 except pygame.error as e:
     print(f"Error loading image: {e}")
     sys.exit()
+ 
+image_rect = image.get_rect()
+image_rect.center = (rozliseni_okna[0] // 2, rozliseni_okna[1] // 2)
+ 
 
 # Player variables
 playerx = 20
@@ -156,6 +162,7 @@ while True:
 
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
         player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Update player_rect
+        okno.blit(image, image_rect)
 
         for obstacle in obstacles:
             if obstacle.update(skore):

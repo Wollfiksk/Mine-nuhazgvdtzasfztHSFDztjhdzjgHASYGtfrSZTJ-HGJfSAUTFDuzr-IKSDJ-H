@@ -32,8 +32,7 @@ velikosty = 50
 gravity = 5
 jump_count = 15
 is_jumping = False
-player_rect = okno.blit(image, (playerx, playery))
- # Create a rect for player
+player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Create a rect for player
 lives = 3
 
 # Other variables
@@ -86,12 +85,6 @@ class Obstacle:
         self.speed += self.acceleration
 
         if self.rect.colliderect(player_rect):
-<<<<<<< HEAD
-            playery = self.rect.y - velikosty - 1
-            playerx -= self.speed
-            jump_count = 0
-            is_jumping = False
-=======
             if not is_jumping:  
                 playerx = self.rect.x - self.rect.width  
             else:
@@ -99,7 +92,6 @@ class Obstacle:
                 playerx = self.rect.x + velikosty
                 jump_count = 0
                 is_jumping = False
->>>>>>> 7f97c03d7d44581e19721a6f2e5bb130ef93e905
 
         if self.rect.x < -self.width:
             self.reset(skore)
@@ -169,8 +161,8 @@ while True:
         okno.fill((0, 0, 0))
 
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
-        player_rect = okno.blit(image, (playerx, playery))
-        
+        player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Update player_rect
+        okno.blit(image, image_rect)
 
         for obstacle in obstacles:
             if obstacle.update(skore):
@@ -202,7 +194,6 @@ while True:
         if stisknute_klavesy[pygame.K_SPACE]:
             if not is_jumping and on_ground:
                 is_jumping = True
-                jump_count = 15
 
         if is_jumping:
             if jump_count >= -15:
@@ -224,4 +215,3 @@ while True:
         okno.blit(txtimg, (600, 0))
 
         pygame.display.update()
-

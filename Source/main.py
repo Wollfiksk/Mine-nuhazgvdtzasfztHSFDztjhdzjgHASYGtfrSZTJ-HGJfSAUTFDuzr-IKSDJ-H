@@ -2,13 +2,27 @@ import sys
 import pygame
 import random
 import time
-
+import os  # Import the os module
+ 
 pygame.init()
 pygame.font.init()
-
+ 
 rozliseni_okna = (800, 600)
-    
 okno = pygame.display.set_mode(rozliseni_okna)
+ 
+# Adjust the image path handling
+current_dir = os.path.dirname(__file__)  # Get the directory of the current script
+image_path = os.path.join(current_dir, "obrazky", "images-removebg-preview.png")
+ 
+try:
+    image = pygame.image.load(image_path)
+except pygame.error as e:
+    print(f"Error loading image: {e}")
+    sys.exit()
+ 
+image_rect = image.get_rect()
+image_rect.center = (rozliseni_okna[0] // 2, rozliseni_okna[1] // 2)
+ 
 
 # Player variables
 playerx = 20
@@ -18,7 +32,8 @@ velikosty = 50
 gravity = 5
 jump_count = 15
 is_jumping = False
-player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Create a rect for player
+player_rect = okno.blit(image, (playerx, playery))
+ # Create a rect for player
 lives = 3
 
 # Other variables
@@ -81,6 +96,7 @@ class Obstacle:
                 playerx = self.rect.x - self.rect.width  
             else:
                 playery = self.rect.y + velikosty
+                playerx = self.rect.x + velikosty
                 jump_count = 0
                 is_jumping = False
 >>>>>>> 7f97c03d7d44581e19721a6f2e5bb130ef93e905
@@ -153,7 +169,8 @@ while True:
         okno.fill((0, 0, 0))
 
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
-        player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Update player_rect
+        player_rect = okno.blit(image, (playerx, playery))
+        
 
         for obstacle in obstacles:
             if obstacle.update(skore):
@@ -162,7 +179,7 @@ while True:
         clock.tick(100)
 
         
-        if playerx < -40: 
+        if playerx < -80: 
             print("you died")
             lives -= 1
             if lives == 0:

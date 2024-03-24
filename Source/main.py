@@ -2,7 +2,7 @@ import sys
 import pygame
 import random
 import time
-import os  # Import the os module
+import os  
  
 pygame.init()
 pygame.font.init()
@@ -10,8 +10,8 @@ pygame.font.init()
 rozliseni_okna = (800, 600)
 okno = pygame.display.set_mode(rozliseni_okna)
  
-# Adjust the image path handling
-current_dir = os.path.dirname(__file__)  # Get the directory of the current script
+
+current_dir = os.path.dirname(__file__)  
 image_path = os.path.join(current_dir, "obrazky", "images-removebg-preview.png")
  
 try:
@@ -24,7 +24,7 @@ image_rect = image.get_rect()
 image_rect.center = (rozliseni_okna[0] // 2, rozliseni_okna[1] // 2)
  
 
-# Player variables
+
 playerx = 20
 playery = 440
 velikostx = 40
@@ -32,10 +32,9 @@ velikosty = 50
 gravity = 5
 jump_count = 15
 is_jumping = False
-player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Create a rect for player
+player_rect = pygame.Rect(playerx, playery, velikostx, velikosty) 
 lives = 3
 
-# Other variables
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 40)
 font2 = pygame.font.SysFont(None, 40)
@@ -98,8 +97,29 @@ class Obstacle:
             return False
 
         return False
+class enemy:
+    def __init__(self, skore):
+        self.reset(skore)
 
+    def reset(self, skore):
+        self.width = 50
+        self.height = 70
+        self.rect = pygame.Rect(850, 550 - self.height, self.width, self.height)
+        self.speed = 0.3
+        self.acceleration = 0.01
 
+    def update(self, skore):
+        global playerx, playery, is_jumping, jump_count  # Declare player variables as global
+        self.rect.x -= self.speed
+        self.speed += self.acceleration
+
+        if self.rect.x < -self.width:
+            self.reset(skore)
+            return False
+
+        return False
+    
+enemies = [enemy(0) for _ in range(5)]
 
 obstacles = [Obstacle(0) for _ in range(5)]
 
@@ -158,7 +178,12 @@ while True:
 
     if not esc:
         stisknute_klavesy = pygame.key.get_pressed()
-        okno.fill((0, 0, 0))
+        if skore > 5000 and skore < 10000:
+            okno.fill((255, 0, 0))
+        elif skore > 10000 and skore < 15000:
+            okno.fill((0, 255, 255))
+        else:
+            okno.fill((0, 0, 0))
 
         pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
         player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Update player_rect
@@ -167,6 +192,12 @@ while True:
         for obstacle in obstacles:
             if obstacle.update(skore):
                 print("Game Over!")
+
+        for enemy in enemies:
+            if enemy.update(skore):
+                print("Game Over!")
+            pygame.draw.rect(okno, (255, 255, 255), (enemy.rect.x + 150, enemy.rect.y, enemy.width, enemy.height))
+
         fps_counter()
         clock.tick(100)
 
@@ -210,8 +241,14 @@ while True:
         skore += 1
         for obstacle in obstacles:
             pygame.draw.rect(okno, (255, 0, 0), (obstacle.rect.x, obstacle.rect.y, obstacle.width, obstacle.height))
+        
+        for enemy in enemies:
+            pygame.draw.rect(okno, (255, 255, 255), (enemy.rect.x + 150, enemy.rect.y, enemy.width, enemy.height))
+
 
         txtimg = font2.render("Skore: " + str(skore), True, (255, 255, 255))
+
+
         okno.blit(txtimg, (600, 0))
 
         pygame.display.update()

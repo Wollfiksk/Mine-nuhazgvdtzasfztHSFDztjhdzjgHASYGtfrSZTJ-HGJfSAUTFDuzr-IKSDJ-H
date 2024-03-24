@@ -6,7 +6,15 @@ import os
  
 pygame.init()
 pygame.font.init()
- 
+
+file = open("Save.txt", "r", encoding="utf-8")
+
+with open("Save.txt", "r") as file:
+    money = int(file.readline().strip())
+    skin = tuple(map(int, file.readline().strip().split(',')))
+
+print(skin)
+
 rozliseni_okna = (800, 600)
 okno = pygame.display.set_mode(rozliseni_okna)
  
@@ -42,6 +50,8 @@ esc = False
 
 skore = 0
 
+button_rect4 = pygame.Rect(300, 70, 200, 100)
+button_rect3 = pygame.Rect(300, 460, 200, 100)
 button_rect2 = pygame.Rect(300, 200, 200, 100)
 button_rect = pygame.Rect(300, 330, 200, 100)
 button_color = (100, 100, 100)
@@ -79,7 +89,7 @@ class Obstacle:
         self.acceleration = 0.01
 
     def update(self, skore):
-        global playerx, playery, is_jumping, jump_count  # Declare player variables as global
+        global playerx, playery, is_jumping, jump_count
         self.rect.x -= self.speed
         self.speed += self.acceleration
 
@@ -109,7 +119,7 @@ class enemy:
         self.acceleration = 0.01
 
     def update(self, skore):
-        global playerx, playery, is_jumping, jump_count  # Declare player variables as global
+        global playerx, playery, is_jumping, jump_count
         self.rect.x -= self.speed
         self.speed += self.acceleration
 
@@ -140,17 +150,36 @@ while True:
             if udalost.button == 1:
                 if button_rect2.collidepoint(udalost.pos):
                     print("Quited")
-                    soubor2 = open("Save.txt", "w", encoding="utf-8")
-                    soubor2.write(str(skore))
+                    soubor2 = open("Save.txt", 'w', encoding='utf-8')
+                    file.write(str(money) + "\n")
+                    file.write(",".join(map(str, skin)) + "\n")
                     soubor2.close()
                     pygame.quit()
                     sys.exit()
-
+        elif udalost.type == pygame.MOUSEBUTTONDOWN:
+            if udalost.button == 1:
+                if button_rect3.collidepoint(udalost.pos):
+                    soubor2 = open("Save.txt", 'w', encoding='utf-8')
+                    file.write(str(money) + "\n")
+                    file.write(",".join(map(str, skin)) + "\n")
+                    soubor2.close()
+                    
+        elif udalost.type == pygame.MOUSEBUTTONDOWN:
+            if udalost.button == 1:
+                if button_rect4.collidepoint(udalost.pos):
+                    soubor2 = open("Save.txt", 'w', encoding='utf-8')
+                    file.write(str(money) + "\n")
+                    file.write(",".join(map(str, skin)) + "\n")
+                    soubor2.close()
+                    
     if esc:
         is_hovered = button_rect.collidepoint(pygame.mouse.get_pos())
         is_hovered2 = button_rect2.collidepoint(pygame.mouse.get_pos())
+        is_hovered3 = button_rect3.collidepoint(pygame.mouse.get_pos())
+        is_hovered4 = button_rect4.collidepoint(pygame.mouse.get_pos())
 
         pygame.draw.rect(okno, (0, 0, 0), (100, 100, 600, 400))
+
         if is_hovered:
             if pygame.mouse.get_pressed()[0]:
                 draw_button(button_rect, click_color, "Reseted")
@@ -164,7 +193,7 @@ while True:
                 draw_button(button_rect2, click_color, "Quited and Saved")
 
                 soubor2 = open("Save.txt", 'w', encoding='utf-8')
-                soubor2.write(str(skore))
+                soubor2.write(str(money))
                 soubor2.close()
 
                 pygame.quit()
@@ -173,6 +202,22 @@ while True:
                 draw_button(button_rect2, button_color, "Quit and Save")
         else:
             draw_button(button_rect2, button_color, "Quit and Save")
+        
+        if is_hovered3:
+            if pygame.mouse.get_pressed()[0]:
+                draw_button(button_rect, click_color, "skin 1")
+            else:
+                draw_button(button_rect, button_color, "skin 1")
+        else:
+            draw_button(button_rect, button_color, "skin 1")
+        
+        if is_hovered4:
+            if pygame.mouse.get_pressed()[0]:
+                draw_button(button_rect, click_color, "skin 2")
+            else:
+                draw_button(button_rect, button_color, "skin 2")
+        else:
+            draw_button(button_rect, button_color, "skin 2")
 
         pygame.display.flip()
 
@@ -185,8 +230,8 @@ while True:
         else:
             okno.fill((0, 0, 0))
 
-        pygame.draw.rect(okno, (255, 255, 255), (playerx, playery, velikostx, velikosty))
-        player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)  # Update player_rect
+        pygame.draw.rect(okno, skin, (playerx, playery, velikostx, velikosty))
+        player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)
         okno.blit(image, image_rect)
 
         for obstacle in obstacles:

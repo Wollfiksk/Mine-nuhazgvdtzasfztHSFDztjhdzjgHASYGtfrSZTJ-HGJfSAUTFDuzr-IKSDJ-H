@@ -12,15 +12,6 @@ file_path = os.path.join(os.path.dirname(__file__), "uloz.txt")
 rozliseni_okna = (800, 600)
 okno = pygame.display.set_mode(rozliseni_okna)
 
-current_dir = os.path.dirname(__file__)
-image_path = os.path.join(current_dir, "obrazky", "images-removebg-preview.png")
-
-try:
-    image = pygame.image.load(image_path)
-except pygame.error as e:
-    print(f"Error loading image: {e}")
-    sys.exit()
-
 with open(file_path, "r", encoding="utf-8") as file:
     money = int(file.readline().strip())
     print("Money:", money)
@@ -30,9 +21,6 @@ with open(file_path, "r", encoding="utf-8") as file:
 print(skin)
 
 file.close()
-
-image_rect = image.get_rect()
-image_rect.center = (rozliseni_okna[0] // 2, rozliseni_okna[1] // 2)
 
 playerx = 20
 playery = 440
@@ -51,12 +39,14 @@ font = pygame.font.SysFont(None, 40)
 font2 = pygame.font.SysFont(None, 40)
 esc = False
 
+skin3_bought = False
+skin2_bought = False
 skore = 0
 
-button_rect4 = pygame.Rect(300, 70, 200, 100)
-button_rect3 = pygame.Rect(300, 460, 200, 100)
-button_rect2 = pygame.Rect(300, 200, 200, 100)
-button_rect = pygame.Rect(300, 330, 200, 100)
+button_rect4 = pygame.Rect(200, 70, 400, 100)
+button_rect3 = pygame.Rect(200, 460, 400, 100)
+button_rect2 = pygame.Rect(200, 200, 400, 100)
+button_rect = pygame.Rect(200, 330, 400, 100)
 button_color = (100, 100, 100)
 click_color = (100, 100, 100)
 
@@ -183,22 +173,28 @@ while True:
 
         if is_hovered:
             if pygame.mouse.get_pressed()[0]:
-                draw_button(button_rect, click_color, "Reseted")
-            else:
-                draw_button(button_rect, button_color, "Reset")
-        else:
-            draw_button(button_rect, button_color, "Reset")
-
-        if is_hovered2:
-            if pygame.mouse.get_pressed()[0]:
-                draw_button(button_rect2, click_color, "Quited and Saved")
+                draw_button(button_rect, click_color, "default")
+                skin = 1
 
                 with open(file_path, "w", encoding="utf-8") as file:
                     file.write(str(money) + "\n")
                     file.write(str(skin) + "\n")
                     file.close()
-                pygame.quit()
-                sys.exit()
+            else:
+                draw_button(button_rect, button_color, "default")
+        else:
+            draw_button(button_rect, button_color, "default")
+
+        if is_hovered2:
+            if pygame.mouse.get_pressed()[0]:
+                    draw_button(button_rect2, click_color, "Quited and Saved")
+
+                    with open(file_path, "w", encoding="utf-8") as file:
+                        file.write(str(money) + "\n")
+                        file.write(str(skin) + "\n")
+                        file.close()
+                    pygame.quit()
+                    sys.exit()
             else:
                 draw_button(button_rect2, button_color, "Quit and Save")
         else:
@@ -206,47 +202,53 @@ while True:
 
         if is_hovered3:
             if pygame.mouse.get_pressed()[0]:
-                draw_button(button_rect3, click_color, "Skin 1 jump + 10")
-
-                skin = 2
-
-                with open(file_path, "w", encoding="utf-8") as file:
-                    file.write(str(money) + "\n")
-                    file.write(str(skin) + "\n")
-                    file.close()
+                if money >= 500 or skin2_bought:
+                    draw_button(button_rect3, click_color, "eqiped")
+                    money = 0
+                    skin = 2
+                    skin2_bought = True
+                    with open(file_path, "w", encoding="utf-8") as file:
+                        file.write(str(money) + "\n")
+                        file.write(str(skin) + "\n")
+                        file.close()
+                else:
+                    draw_button(button_rect3, (255, 0, 0), "Not enough money!")
             else:
-                draw_button(button_rect3, button_color, "Skin 1 jump + 10")
+                draw_button(button_rect3, button_color, "Skin 1 jump + 10 cost:500")
         else:
-            draw_button(button_rect3, button_color, "Skin 1 jump + 10")
+            draw_button(button_rect3, button_color, "Skin 1 jump + 10 cost:500")
 
         if is_hovered4:
             if pygame.mouse.get_pressed()[0]:
-                draw_button(button_rect4, click_color, "Skin 2 jump + 15")
-
-                skin = 3
-
-                with open(file_path, "w", encoding="utf-8") as file:
-                    file.write(str(money) + "\n")
-                    file.write(str(skin) + "\n")
-                    file.close()
+                if money >= 1000 or skin3_bought:
+                    draw_button(button_rect4, click_color, "eqiped")
+                    money = 0
+                    skin = 3
+                    skin3_bought = True
+                    with open(file_path, "w", encoding="utf-8") as file:
+                        file.write(str(money) + "\n")
+                        file.write(str(skin) + "\n")
+                        file.close()
+                else:
+                    draw_button(button_rect4, (255, 0, 0), "Not enough money!")
             else:
-                draw_button(button_rect4, button_color, "Skin 2 jump + 15")
+                draw_button(button_rect4, button_color, "Skin 2 jump + 15 cost:1000")
         else:
-            draw_button(button_rect4, button_color, "Skin 2 jump + 15")
+            draw_button(button_rect4, button_color, "Skin 2 jump + 15 cost:1000")
 
         pygame.display.flip()
 
     if not esc:
         stisknute_klavesy = pygame.key.get_pressed()
-        if skore > 5000 and skore < 10000:
-            okno.fill((255, 0, 0))
-        elif skore > 10000 and skore < 15000:
+        if skore > 2000 and skore < 5000:
+            okno.fill((255, 255, 0))
+        elif skore > 5000:
             okno.fill((0, 255, 255))
         else:
             okno.fill((0, 0, 0))
 
         if skin == 1:
-            pygame.draw.rect(okno, (0,0,0), (playerx, playery, velikostx, velikosty))
+            pygame.draw.rect(okno, (255,255,255), (playerx, playery, velikostx, velikosty))
             skin_text = font.render("+0", True, (255, 255, 255))
             okno.blit(skin_text, (playerx + 5, playery + velikosty))
         elif skin == 2:
@@ -259,7 +261,6 @@ while True:
             okno.blit(skin3_text, (playerx + 5, playery + velikosty))
 
         player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)
-        okno.blit(image, image_rect)
 
         for obstacle in obstacles:
             if obstacle.update(skore):
@@ -278,7 +279,6 @@ while True:
                 if e in enemies:
                     enemies.add(e)
                 e.reset(skore)
-
 
         all_sprites.draw(okno)
         for obstacle in obstacles:
@@ -346,3 +346,4 @@ while True:
         okno.blit(txtimg, (600, 0))
 
         pygame.display.update()
+

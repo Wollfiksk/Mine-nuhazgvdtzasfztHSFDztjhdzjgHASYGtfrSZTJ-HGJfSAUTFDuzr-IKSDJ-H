@@ -31,9 +31,9 @@ jump_count = 15
 is_jumping = False
 player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)
 lives = 3
-
+jump_counterds = 0
 upgrade = 0
-
+count = 1
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 40)
 font2 = pygame.font.SysFont(None, 40)
@@ -42,11 +42,12 @@ esc = False
 skin3_bought = False
 skin2_bought = False
 skore = 0
-
-button_rect4 = pygame.Rect(200, 70, 400, 100)
-button_rect3 = pygame.Rect(200, 460, 400, 100)
-button_rect2 = pygame.Rect(200, 200, 400, 100)
-button_rect = pygame.Rect(200, 330, 400, 100)
+kill_count = 0
+button_rect = pygame.Rect(250, 260, 300, 60)
+button_rect2 = pygame.Rect(250, 330, 300, 60)
+button_rect3 = pygame.Rect(250, 400, 300, 60)
+button_rect4 = pygame.Rect(250, 470, 300, 60)
+button_rect_upgrade = pygame.Rect(250, 540, 300, 60)
 button_color = (100, 100, 100)
 click_color = (100, 100, 100)
 
@@ -104,17 +105,15 @@ class Enemy(pygame.sprite.Sprite):
             self.rect = self.image.get_rect()
             self.rect.x = random.randint(1000, 1500)
             self.rect.y = 550 - self.image.get_height()
-            self.speed = 0.3
-            self.acceleration = 0.01
+            self.speed = 4
             self.active = True  
 
     def update(self, skore):
         if self.active:  
             self.rect.x -= self.speed
-            self.speed += self.acceleration
 
-            if self.rect.x < (-self.rect.width - 300):
-                self.active = False
+            if self.rect.x < 0:
+                self.rect.x = random.randint(1000, 1500)
 
 all_sprites = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
@@ -125,6 +124,29 @@ for _ in range(50):
     obstacles.add(Obstacle(0))
 enemies.add(Enemy(0))
 
+class PowerUp(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((30, 30)) 
+        self.image.fill((255, 255, 0)) 
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randint(0, rozliseni_okna[0] - 30) 
+        self.rect.y = random.randint(0, rozliseni_okna[1] - 30) 
+
+powerups = pygame.sprite.Group()  
+last_powerup_spawn = pygame.time.get_ticks()  
+spawn_interval = random.randint(30000, 60000)
+
+def spawn_powerup():
+    global last_powerup_spawn, spawn_interval
+    current_time = pygame.time.get_ticks()
+
+    if current_time - last_powerup_spawn > spawn_interval:
+        powerup = PowerUp()
+        powerups.add(powerup)
+
+        last_powerup_spawn = current_time
+        spawn_interval = random.randint(400, 500)
 
 def draw_button(rect, color, text):
     pygame.draw.rect(okno, color, rect)
@@ -146,6 +168,20 @@ def increase_money(amount):
     global money
     money += amount
 
+achievements = {
+    "Jump 50 times": {"condition": lambda: jump_counterds >= 50, "reward": 100},
+    "Jump 100 times": {"condition": lambda: jump_counterds >= 100, "reward": 200},
+    "kill 10 enemies ": {"condition": lambda: kill_count >= 10, "reward": 300},
+}
+
+def buy_upgrade():
+    global money, upgrade
+    if money >= 50:
+        money -= 50
+        upgrade += 0.3
+
+earned_achievements = set()
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -162,6 +198,9 @@ while True:
                 bullet.speed = direction * 10
                 all_sprites.add(bullet)
                 bullets.add(bullet)
+            elif event.button == 3:
+                if button_rect_upgrade.collidepoint(event.pos):
+                    buy_upgrade()
 
     if esc:
         is_hovered = button_rect.collidepoint(pygame.mouse.get_pos())
@@ -185,6 +224,18 @@ while True:
         else:
             draw_button(button_rect, button_color, "default")
 
+        is_hovered_upgrade = button_rect_upgrade.collidepoint(pygame.mouse.get_pos())
+        if is_hovered_upgrade:
+            if pygame.mouse.get_pressed()[0]:
+                draw_button(button_rect_upgrade, click_color, "Buy Upgrade")
+                buy_upgrade()  # Buy upgrade when clicked
+            else:
+                draw_button(button_rect_upgrade, button_color, "Buy Upgrade")
+        else:
+            draw_button(button_rect_upgrade, button_color, "Buy Upgrade")
+
+        pygame.display.flip()
+        
         if is_hovered2:
             if pygame.mouse.get_pressed()[0]:
                     draw_button(button_rect2, click_color, "Quited and Saved")
@@ -273,7 +324,8 @@ while True:
         all_sprites.update()
         bullets_hit_enemies = pygame.sprite.groupcollide(bullets, enemies, True, True)
         for enemy in bullets_hit_enemies.values():
-            increase_money(50 * len(enemy))
+            increase_money(50 * len((enemy)))
+            kill_count += 1
             enemies.add(Enemy(0))
             for e in enemy:
                 if e in enemies:
@@ -290,6 +342,12 @@ while True:
         for bullet, _ in bullets_hit_obstacles.items():
             bullet.kill()
 
+        for achievement_name, achievement in achievements.items():
+            if achievement_name not in earned_achievements and achievement['condition']():
+                increase_money(achievement['reward'])
+                earned_achievements.add(achievement_name)
+                print(f"Achievement Unlocked: {achievement_name}")
+                jump_counter = 0
         fps_counter()
         clock.tick(100)
 
@@ -317,6 +375,13 @@ while True:
             on_ground = True
             playery = 440
 
+        achive1_text = font.render("Jump 50 times", True, (255, 255, 255))
+        okno.blit(achive1_text, (5, 30))
+        achive2_text = font.render("Jump 100 times", True, (255, 255, 255))
+        okno.blit(achive2_text, (5, 60))
+        achive3_text = font.render("kill 10 enemies", True, (255, 255, 255))
+        okno.blit(achive3_text, (5, 90))
+
         if stisknute_klavesy[pygame.K_SPACE]:
             if not is_jumping and on_ground:
                 is_jumping = True
@@ -327,18 +392,30 @@ while True:
                 if jump_count < 0:
                     neg = -1
                 if skin == 1:
-                    playery -= 12
+                    if count > 0:
+                        jump_counterds += 1
+                        count = 0
+                    playery -= 12 + upgrade
                 if skin == 2:
+                    if count > 0:
+                        jump_counterds += 1
+                        count = 0
                     playery -= 14 + upgrade
                 if skin == 3:
+                    if count > 0:
+                        jump_counterds += 1
+                        count = 0
                     playery -= 15 + upgrade
                 jump_count -= 1
             else:
                 is_jumping = False
                 jump_count = 15
+                count = 1
 
         playery += gravity
         skore += 1
+
+        spawn_powerup()
 
         txtimg = font2.render("Skore: " + str(skore), True, (255, 255, 255))
         money_text = font2.render("Money: " + str(money), True, (255, 255, 255))

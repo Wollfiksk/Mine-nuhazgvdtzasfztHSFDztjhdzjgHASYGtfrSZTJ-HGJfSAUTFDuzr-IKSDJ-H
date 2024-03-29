@@ -17,6 +17,8 @@ with open(file_path, "r", encoding="utf-8") as file:
     print("Money:", money)
     skin = int(file.readline().strip())
     print("Skin:", skin)
+    upgrade = int(file.readline().strip())
+    print("Skin:", upgrade)
 
 print(skin)
 
@@ -32,7 +34,6 @@ is_jumping = False
 player_rect = pygame.Rect(playerx, playery, velikostx, velikosty)
 lives = 3
 jump_counterds = 0
-upgrade = 0
 count = 1
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 40)
@@ -43,13 +44,13 @@ skin3_bought = False
 skin2_bought = False
 skore = 0
 kill_count = 0
-button_rect = pygame.Rect(250, 260, 300, 60)
-button_rect2 = pygame.Rect(250, 330, 300, 60)
-button_rect3 = pygame.Rect(250, 400, 300, 60)
-button_rect4 = pygame.Rect(250, 470, 300, 60)
-button_rect_upgrade = pygame.Rect(250, 540, 300, 60)
+button_rect = pygame.Rect(250, 150, 300, 60)
+button_rect2 = pygame.Rect(250, 220, 300, 60)
+button_rect3 = pygame.Rect(250, 290, 300, 60)
+button_rect4 = pygame.Rect(250, 360, 300, 60)
+button_rect_upgrade = pygame.Rect(250, 430, 300, 60)
 button_color = (100, 100, 100)
-click_color = (100, 100, 100)
+click_color = (0, 100, 100)
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -185,6 +186,11 @@ earned_achievements = set()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            with open(file_path, "w", encoding="utf-8") as file:
+                    file.write(str(money) + "\n")
+                    file.write(str(skin) + "\n")
+                    file.write(str(upgrade) + "\n")
+                    file.close()
             pygame.quit()
             sys.exit()
         elif event.type == pygame.KEYDOWN:
@@ -208,8 +214,6 @@ while True:
         is_hovered3 = button_rect3.collidepoint(pygame.mouse.get_pos())
         is_hovered4 = button_rect4.collidepoint(pygame.mouse.get_pos())
 
-        pygame.draw.rect(okno, (0, 0, 0), (100, 100, 600, 400))
-
         if is_hovered:
             if pygame.mouse.get_pressed()[0]:
                 draw_button(button_rect, click_color, "default")
@@ -218,6 +222,7 @@ while True:
                 with open(file_path, "w", encoding="utf-8") as file:
                     file.write(str(money) + "\n")
                     file.write(str(skin) + "\n")
+                    file.write(str(upgrade) + "\n")
                     file.close()
             else:
                 draw_button(button_rect, button_color, "default")
@@ -227,8 +232,11 @@ while True:
         is_hovered_upgrade = button_rect_upgrade.collidepoint(pygame.mouse.get_pos())
         if is_hovered_upgrade:
             if pygame.mouse.get_pressed()[0]:
-                draw_button(button_rect_upgrade, click_color, "Buy Upgrade")
-                buy_upgrade()  # Buy upgrade when clicked
+                if money >= 50:
+                    draw_button(button_rect_upgrade, click_color, "bought")
+                    buy_upgrade()  
+                else:
+                    draw_button(button_rect_upgrade, (255, 0, 0), "Not enough money!")
             else:
                 draw_button(button_rect_upgrade, button_color, "Buy Upgrade")
         else:
@@ -243,6 +251,7 @@ while True:
                     with open(file_path, "w", encoding="utf-8") as file:
                         file.write(str(money) + "\n")
                         file.write(str(skin) + "\n")
+                        file.write(str(upgrade) + "\n")
                         file.close()
                     pygame.quit()
                     sys.exit()
@@ -261,6 +270,7 @@ while True:
                     with open(file_path, "w", encoding="utf-8") as file:
                         file.write(str(money) + "\n")
                         file.write(str(skin) + "\n")
+                        file.write(str(upgrade) + "\n")
                         file.close()
                 else:
                     draw_button(button_rect3, (255, 0, 0), "Not enough money!")
@@ -279,6 +289,7 @@ while True:
                     with open(file_path, "w", encoding="utf-8") as file:
                         file.write(str(money) + "\n")
                         file.write(str(skin) + "\n")
+                        file.write(str(upgrade) + "\n")
                         file.close()
                 else:
                     draw_button(button_rect4, (255, 0, 0), "Not enough money!")
@@ -362,6 +373,7 @@ while True:
                 with open(file_path, "w", encoding="utf-8") as file:
                     file.write(str(money) + "\n")
                     file.write(str(skin) + "\n")
+                    file.write(str(upgrade) + "\n")
                     file.close()
 
                 time.sleep(2)
